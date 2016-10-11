@@ -11,7 +11,10 @@
 #include <math.h>
 #include "list.h"
 
-#define NTHREADS 2
+#define NTHREADS 4
+
+struct timeval tvalBefore, tvalAfter;
+struct sched_param param;
 
 // FIFO list;
 List *fifo;
@@ -25,6 +28,7 @@ double result;
 void *runner(void *param); /* threads call this function */
 int main(int argc, char *argv[])
 {
+  gettimeofday( &tvalBefore, NULL );
   int n = atoi(argv[1])/NTHREADS;
   pthread_t thread_id[NTHREADS];
   Job jobs[NTHREADS];
@@ -55,6 +59,11 @@ int main(int argc, char *argv[])
     result+=sum;
   }
   printf("Result: %f\n", result);
+  gettimeofday( &tvalAfter, NULL );
+  printf("Time: %ld milliseconds\n",
+            (((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L
+           +tvalAfter.tv_usec) - tvalBefore.tv_usec) / 1000
+          );
 }
 
 /* The thread will begin control in this function */ 
