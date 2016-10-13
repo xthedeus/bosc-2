@@ -32,7 +32,7 @@ List *list_new(void)
 /* list_add: add node n to list l as the last element */
 void list_add(List *l, Node *n)
 {
-  pthread_mutex_lock(&lock);
+  //pthread_mutex_lock(&lock);
   if(list_empty(l))
   {
     l->first->next = n;
@@ -45,7 +45,7 @@ void list_add(List *l, Node *n)
   }
   n->next = NULL;
   l->len += 1;
-  pthread_mutex_unlock(&lock);
+  //pthread_mutex_unlock(&lock);
 }
 
 /* list_remove: remove and return the first (non-root) element from list l */

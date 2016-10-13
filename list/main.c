@@ -72,9 +72,13 @@ int main(int argc, char *argv[])
   {
     pthread_join(thread_id[i],NULL); 
   }
-  printf("Result: %f\n", sum);
-  gettimeofday( &tvalAfter, NULL );
-  printf("Time: %ld milliseconds\n",(((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L + tvalAfter.tv_usec) - tvalBefore.tv_usec) / 1000);
+  int k = 0;
+  while(list_remove(fifo)->next != NULL) k++;
+  printf("Expected length: %d\n", atoi(argv[1]));
+  printf("Actual length: %d\n", k);
+  //printf("Result: %f\n", sum);
+  //gettimeofday( &tvalAfter, NULL );
+  //printf("Time: %ld milliseconds\n",(((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L + tvalAfter.tv_usec) - tvalBefore.tv_usec) / 1000);
 }
 
 /* The thread will begin control in this function */ 
@@ -84,27 +88,6 @@ void *runner(void *param)
   Job *job = param;
   for (i = job->from; i <= job->to; i++) {
     list_add(fifo, node_new_str("" + i));
-    printf("Added: %d\n", i);
-    Node *n1 = list_remove(fifo);
-    //printf("Removed: %d\n", n1->elm);
   }
   pthread_exit(0);
 }
-
-/*
-int main(int argc, char* argv[])
-{
-  fifo = list_new();
-
-  list_add(fifo, node_new_str("s1"));
-  list_add(fifo, node_new_str("s2"));
-
-  Node *n1 = list_remove(fifo);
-  if (n1 == NULL) { printf("Error no elements in list\n"); exit(-1);}
-  Node *n2 = list_remove(fifo);
-  if (n2 == NULL) { printf("Error no elements in list\n"); exit(-1);}
-  //printf("%s\n%s\n", n1->elm, n2->elm);
-
-  return 0;
-}
-*/
