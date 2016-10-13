@@ -5,6 +5,8 @@
 
 ******************************************************************************/
 
+#include <stdbool.h>
+
 #ifndef _LIST_H
 #define _LIST_H
 
@@ -26,5 +28,6 @@ void list_add(List *l, Node *n); /* add node n to list l as the last element */
 Node *list_remove(List *l);      /* remove and return the first element from list l*/
 Node *node_new(void);            /* return a new node structure */
 Node *node_new_str(char *s);     /* return a new node structure, where elm points to new copy of string s */
+bool list_empty(List *l);
 
 #endif

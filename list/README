@@ -1,0 +1,4 @@
+2.2
+
+Når flere tråde prøver at tilgå samme objekt, så kan der forekomme lost update.
+Lost update kan eksempelvis opstå når to tråde vil fjerne første element fra listen (altså fjerne 2 elementer), men nr. 2 tråd når at læse før nr. 1 tråd skriver (fjerner første element) og derfor bliver der kun fjernet 1 element.
