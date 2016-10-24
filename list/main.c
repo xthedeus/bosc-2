@@ -33,7 +33,7 @@ void *produce(void *param);
 void *consume(void *param);
 void Sleep(float wait_time_ms);
 
-sem_t semvar;
+sem_t mutex, empty, full;
 
 int numOfProductsToProduce;
 int producedProducts;
@@ -118,7 +118,9 @@ int main(int argc, char *argv[])
 
   fifo = list_new();
 
-  sem_init(&semvar, 0, 1);
+  sem_init(&mutex, 0, 1);
+  sem_init(&empty, 0, bufferSize);
+  sem_init(&full, 0, 0);
 
   pthread_t thread_id[numOfThreads];
   pthread_attr_t attr;
@@ -159,15 +161,16 @@ void *produce(void *param)
 
   if(producedProducts < numOfProductsToProduce && fifo->len < bufferSize)
   {
-    sem_wait(&semvar);
+    sem_wait(&empty);
+    sem_wait(&mutex);
     int producerNum = *(int*)param;
     char producedName[24];
     sprintf(producedName, "%d", producedProducts);
-    //Node *n = node_new_str(producedName);
     list_add(fifo, node_new_str(producedName));
     printf("Producer %d produced Item_%s. Items in buffer: %d (out of %d)\n", producerNum, producedName, fifo->len, bufferSize);
     producedProducts += 1;
-    sem_post(&semvar);
+    sem_post(&mutex);
+    sem_post(&full);
   }
 
   if(producedProducts < numOfProductsToProduce)
@@ -186,11 +189,13 @@ void *consume(void *param)
 {
   if(fifo->len > 0)
   {
-    sem_wait(&semvar);
+    sem_wait(&full);
+    sem_wait(&mutex);
     int consumerNum = *(int*)param;
     Node *n = list_remove(fifo);
     printf("Consumer %d consumed Item_%s. Items in buffer: %d (out of %d)\n", consumerNum, (char *)n->elm, fifo->len, bufferSize);
-    sem_post(&semvar);
+    sem_post(&mutex);
+    sem_post(&empty);
   }
 
   if(producedProducts < numOfProductsToProduce)
