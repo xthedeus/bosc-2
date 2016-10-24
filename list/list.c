@@ -43,7 +43,6 @@ void list_add(List *l, Node *n)
     l->last->next = n;
     l->last = n;
   }
-  n->next = NULL;
   l->len += 1;
   pthread_mutex_unlock(&lock);
 }
