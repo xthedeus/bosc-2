@@ -53,22 +53,23 @@ int resource_request(int i, int *request)
   printf("Start resource request\n");
   int *work = s->available;
   int finish[m];
-  int k,j;
+  int j;
   bool safe = true;
-  a:for (k = 0; k < m; ++k)
-  {
-    if(!finish[k]) {
-      safe = false;
-    }
-    for (j = 0; j < n; ++j)
+  a:for (j = 0; j < n; ++j)
     {
-      if(!finish[k] && request[j] <= work[j]) {
-        finish[k] = true;
-        work[j] = work[j]+s->allocation[k][j];
-        goto a;
+      if(!finish[i]) {
+        safe = false;
+      
+        if(request[j] <= work[j]) {
+          finish[i] = true;
+          work[j] = work[j]+s->allocation[i][j];
+          //s->available[j] -= request[j];
+          //s->allocation[k][j] += request[j];
+          //s->need[k][j] -= request[j];
+          goto a;
+        }
       }
     }
-  }
   printf("Safe: %d\n", safe);
   return safe;
 }
@@ -76,7 +77,12 @@ int resource_request(int i, int *request)
 /* Release the resources in request for process i */
 void resource_release(int i, int *request)
 {
-
+  int j;
+  for (j = 0; j < n; ++j)
+  {
+    s->allocation[i][j] -= request[j];
+  }
+  
 }
 
 /* Generate a request vector */
