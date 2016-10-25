@@ -1,8 +1,9 @@
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 typedef struct state {
   int *resource;
@@ -11,7 +12,7 @@ typedef struct state {
   int **allocation;
   int **need;
 } State;
-
+int **allocate_double_matrix(int m, int n);
 // Global variables
 int m, n;
 State *s = NULL;
@@ -27,16 +28,55 @@ void Sleep(float wait_time_ms)
   usleep((int) (wait_time_ms * 1e3f)); // convert from ms to us
 }
 
+int **allocate_double_matrix(int m, int n)
+{
+ /* Allocate memory for the elements */
+ int *mem = malloc(m * n * sizeof(int));
+ /* Allocate memory for the matrix array */
+ int **mat = malloc(m * sizeof(int *));
+ /* Setup array */
+ if (mem != NULL && mat != NULL) {
+ int i;
+ for (i = 0; i < m; ++i) {
+ mat[i] = &mem[i * n];
+ }
+ } else {
+ printf("Out of memory!\n"); exit(-1);
+ }
+ return mat;
+}
+
 /* Allocate resources in request for process i, only if it 
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request)
 {
-  return 0;
+  printf("Start resource request\n");
+  int *work = s->available;
+  int finish[m];
+  int k,j;
+  bool safe = true;
+  a:for (k = 0; k < m; ++k)
+  {
+    if(!finish[k]) {
+      safe = false;
+    }
+    for (j = 0; j < n; ++j)
+    {
+      if(!finish[k] && request[j] <= work[j]) {
+        finish[k] = true;
+        work[j] = work[j]+s->allocation[k][j];
+        goto a;
+      }
+    }
+  }
+  printf("Safe: %d\n", safe);
+  return safe;
 }
 
 /* Release the resources in request for process i */
 void resource_release(int i, int *request)
 {
+
 }
 
 /* Generate a request vector */
@@ -99,6 +139,13 @@ int main(int argc, char* argv[])
   scanf("%d", &n);
 
   /* Allocate memory for state */
+  int *res = malloc(n * sizeof(int *));
+  int *avail = malloc(n * sizeof(int *));
+  int **max = allocate_double_matrix(m,n);
+  int **allo = allocate_double_matrix(m,n);
+  int **need = allocate_double_matrix(m,n);
+  State s1 = { res, avail, max, allo, need };
+  s = &s1;
   if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
 
   /* Get current state as input */
