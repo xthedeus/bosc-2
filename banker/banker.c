@@ -13,6 +13,7 @@ typedef struct state {
   int **need;
 } State;
 int **allocate_double_matrix(int m, int n);
+bool is_safe(State *state);
 // Global variables
 int m, n;
 State *s = NULL;
@@ -50,26 +51,50 @@ int **allocate_double_matrix(int m, int n)
    results in a safe state and return 1, else return 0 */
 int resource_request(int i, int *request)
 {
-  printf("Start resource request\n");
   int *work = s->available;
   int finish[m];
-  int j;
+  int j,k;
   bool safe = true;
-  a:for (j = 0; j < n; ++j)
+  a:for (j = 0; j < m; ++j)
     {
-      if(!finish[i]) {
-        safe = false;
-      
-        if(request[j] <= work[j]) {
-          finish[i] = true;
-          work[j] = work[j]+s->allocation[i][j];
-          //s->available[j] -= request[j];
-          //s->allocation[k][j] += request[j];
-          //s->need[k][j] -= request[j];
-          goto a;
-        }
+      if(request[j] <= work[j]) {
+        finish[j] = true;
+        work[j] = work[j]+s->allocation[i][j];
+        goto a;
       }
     }
+    for (k = 0; k < m; ++k)
+    {
+      if(!finish[k]) {
+        safe = false;
+      }
+    }
+  printf("Safe: %d\n", safe);
+  return safe;
+}
+
+bool is_safe(State *state) {
+  int *work = state->available;
+  int finish[m];
+  int k,j;
+  bool safe = true;
+  a:for (k = 0; k < n; ++k)
+  {
+    for (j = 0; j < m; ++j)
+    {
+      if(!finish[k] && state->need[k][j] <= work[j]) {
+        finish[k] = true;
+        work[j] = work[j]+state->allocation[k][j];
+        goto a;
+      }
+    }
+  }
+  for (k = 0; k < m; ++k)
+  {
+    if(!finish[k]) {
+      safe = false;
+    }
+  }
   printf("Safe: %d\n", safe);
   return safe;
 }
@@ -81,6 +106,8 @@ void resource_release(int i, int *request)
   for (j = 0; j < n; ++j)
   {
     s->allocation[i][j] -= request[j];
+    s->available[j] += request[j];
+    s->need[i][j] = s->max-s->allocation;
   }
   
 }
@@ -151,6 +178,9 @@ int main(int argc, char* argv[])
   int **allo = allocate_double_matrix(m,n);
   int **need = allocate_double_matrix(m,n);
   State s1 = { res, avail, max, allo, need };
+  if (!is_safe(&s1)) {
+    printf("\nInitial state is not safe!!\n"); exit(0);
+  }
   s = &s1;
   if (s == NULL) { printf("\nYou need to allocate memory for the state!\n"); exit(0); };
 
