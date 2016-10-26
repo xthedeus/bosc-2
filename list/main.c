@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#define NTHREADS 4
+#define NTHREADS 8
 
 struct timeval tvalBefore, tvalAfter;
 struct sched_param param;
@@ -39,8 +39,81 @@ int numOfProductsToProduce;
 int producedProducts;
 int bufferSize;
 
+/**********
 
-// TEST OF LIST IMPLEMENTATION //
+TEST OF SUM IMPLEMENTATION
+
+**********/
+
+/*
+int main(int argc, char *argv[])
+{
+  gettimeofday( &tvalBefore, NULL );
+
+  int n = atoi(argv[1])/NTHREADS;
+
+  pthread_t thread_id[NTHREADS];
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+
+  Job jobs[NTHREADS];
+
+  int i;
+
+  if(argc != 2) {
+    fprintf(stderr,"usage: a.out <integer value>\n"); 
+    return -1;
+  }
+
+  if (atoi(argv[1]) < 0) {
+    fprintf(stderr,"%d must be >= 0\n",atoi(argv[1])); 
+    return -1;
+  }
+
+  for (i = 0; i < NTHREADS; ++i)
+  {
+    Job threadtask;
+    if(i==0) {
+      threadtask.from = i*n;
+    } else {
+      threadtask.from = i*n+1;
+    }
+    threadtask.to = n+(i*n);
+    
+    jobs[i] = threadtask;
+    pthread_create(&thread_id[i],&attr,runner,&jobs[i]);
+  }
+
+  for (i = 0; i < NTHREADS; ++i)
+  {
+    pthread_join(thread_id[i],NULL); 
+  }
+  printf("Result: %f\n", sum);
+  gettimeofday( &tvalAfter, NULL );
+  printf("Time: %ld milliseconds\n",(((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L + tvalAfter.tv_usec) - tvalBefore.tv_usec) / 1000);
+}
+
+/* The thread will begin control in this function */ 
+/*
+void *runner(void *param)
+{
+  int i;
+  Job *job = param;
+  double sum2 = 0;
+  for (i = job->from; i <= job->to; i++) {
+    sum2 += sqrt(i);
+  }
+  sum += sum2;
+  pthread_exit(0);
+}
+*/
+
+/**********
+
+TEST OF LIST IMPLEMENTATION
+
+**********/
+
 /*
 int main(int argc, char *argv[])
 {
@@ -94,8 +167,12 @@ int main(int argc, char *argv[])
   //gettimeofday( &tvalAfter, NULL );
   //printf("Time: %ld milliseconds\n",(((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L + tvalAfter.tv_usec) - tvalBefore.tv_usec) / 1000);
 }
+*/
+/**********
 
-/* The thread will begin control in this function */ 
+  The thread will begin control in this function
+  RUNNER FOR LIST IMPLEMENTATION
+
 void *runner(void *param)
 {
   int i;
@@ -105,6 +182,8 @@ void *runner(void *param)
   }
   pthread_exit(0);
 }
+
+**********/
 
 int main(int argc, char *argv[]) 
 {
